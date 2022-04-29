@@ -57,7 +57,7 @@ ggplot(is) +
 query = "Carpobrotus edulis"
 start_tweets = "2006-10-01T00:00:00Z"
 end_tweets = "2021-10-01T00:00:00Z"
-bearer= "AAAAAAAAAAAAAAAAAAAAAIMWTgEAAAAADtbtu9ODnL0x7fMS%2B5RVpSmN2mA%3Dfn7LEknPNl1R8eNyy5dKq1Hep7JnQsa8mjnqQnqiaGPReCJHAm"
+bearer= "api-token"
 
 # get counts of tweets with query per day
 tweet_counts <- count_all_tweets(
