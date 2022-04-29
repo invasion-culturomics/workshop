@@ -3,29 +3,36 @@
 # load packages
 library(gtrendsR)
 library(tidyverse)
+library(countrycode)
 
 # import data
 dat <- read_csv("data/GLONAF/Taxon_x_List_GloNAF_vanKleunenetal2018Ecology.csv")
 regions <- read_csv("data/GLONAF/Region_GloNAF_vanKleunenetal2018Ecology.csv")
+countries2 <- as_tibble(countries) # from gtrendsR package
 
 
 #### edit data ####
 
-# country codes
-country_code <- as_tibble(countries) %>%
-  filter(!(country_code == "US" & name != "UNITED STATES")) %>%
-  select(name, country_code) %>%
-  unique()
+# convert GLONAF codes from ISO-3 to ISO-2
+regions2 <- regions %>%
+  mutate(country_code = countrycode(country_ISO, origin = 'iso3c', destination = 'iso2c'),
+         country_code = case_when(country_ISO == "ANT" & 
+                                    country == "Netherlands Antilles" ~ "AN", # addresses warning
+                                  TRUE ~ country_code))
+
+# check for matching
+regions2 %>%
+  anti_join(countries2 %>%
+              select(country_code)) %>%
+  select(country_ISO, country, country_code)
+# should return 0
 
 # select alien taxa
 # add country info
 dat2 <- dat %>% filter(status == "alien") %>%
-  left_join(regions %>%
-              select(region_id, country)) %>%
-  mutate(name = toupper(country),
-         name = if_else(str_detect(name, "UNITED STATES OF AMERICA") == T, "UNITED STATES", name)) %>%
-  left_join(country_code) %>%
-  filter(!is.na(country_code)) # will need to fix country names that aren't translating
+  left_join(regions2 %>%
+              select(region_id, country_code) %>%
+              unique())
 
 # select random taxa
 # set.seed(10)
