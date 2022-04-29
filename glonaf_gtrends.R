@@ -27,31 +27,32 @@ regions2 %>%
   select(country_ISO, country, country_code)
 # should return 0
 
-# select alien taxa
+# identify species to test functions
+species <- tibble(standardized_name = c("Carpobrotus edulis", "Acacia dealbata", "Bromus arvensis", "Eichhornia crassipes"))
+
 # add country info
-dat2 <- dat %>% filter(status == "alien") %>%
+# filter for test species
+dat2 <- dat %>%
   left_join(regions2 %>%
               select(region_id, country_code) %>%
-              unique())
+              unique()) %>%
+  inner_join(species) %>%
+  select(standardized_name, country_code) %>% # remove regions (smaller scale than country)
+  unique()
 
-# select random taxa
-# set.seed(10)
-# dat_sub <- dat2[sample(1:nrow(dat2), 5),]
-# all had NA time series
+# select 5 rows to try gtrends
+dat_sub <- dat2[1:5,]
 
-# select taxa in US
-dat_sub <- dat2 %>%
-  filter(country_code == "US")
-
-# random selection
-set.seed(101)
-dat_sub2 <- dat_sub[sample(1:nrow(dat_sub), 5),]
+# select single species and location to try function
+dat_sub2 <- dat2 %>%
+  filter(standardized_name == "Eichhornia crassipes" &
+           country_code == "US")
 
 
 #### single species ####
 
 # google trends
-dat_temp <- gtrends(dat_sub2$standardized_name[5], time = "all", geo = "US")
+dat_temp <- gtrends(dat_sub2$standardized_name[1], time = "all", geo = dat_sub2$country_code[1])
 
 # format interest over time
 dat_temp2 <- dat_temp$interest_over_time %>%
@@ -98,9 +99,8 @@ gtrends_slope <- function(taxon, location){
 }
 
 # apply function across dataset
-dat_sub3 <- dat_sub2 %>%
+dat_gt <- dat_sub %>%
   mutate(gt_slope = map2(standardized_name, country_code, gtrends_slope)) %>%
   unnest(gt_slope)
 
-dat_sub3 %>%
-  select(standardized_name, country, gt_slope)
+dat_gt
