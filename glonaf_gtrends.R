@@ -5,9 +5,9 @@ library(gtrendsR)
 library(tidyverse)
 library(countrycode)
 
-# import data
-dat <- read_csv("data/GLONAF/Taxon_x_List_GloNAF_vanKleunenetal2018Ecology.csv")
-regions <- read_csv("data/GLONAF/Region_GloNAF_vanKleunenetal2018Ecology.csv")
+# import data (note that updated GLONAF data have been added)
+dat <- read_csv("data/GLONAF-idiv/Taxon_x_List_GloNAF_vanKleunenetal2018Ecology.csv")
+regions <- read_csv("data/GLONAF-idiv/Region_GloNAF_vanKleunenetal2018Ecology.csv")
 countries2 <- as_tibble(countries) # from gtrendsR package
 
 
